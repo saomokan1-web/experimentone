@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marathon Readiness — 2:45 Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <h1>Marathon Readiness</h1>
+      <p class="subtitle">Target: <strong>2:45:00</strong> marathon &middot; <strong>3:54 / km</strong></p>
+    </div>
+    <div class="upload">
+      <label class="file-btn">
+        <input type="file" id="csvInput" accept=".csv" />
+        <span>Upload CSV (Strava or Garmin)</span>
+      </label>
+      <button id="clearBtn" class="ghost" type="button" hidden>Clear</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="emptyState" class="empty">
+      <h2>Upload your running history to get started</h2>
+      <p>
+        Export your activities from <strong>Strava</strong>
+        (<em>Settings &rarr; My Account &rarr; Download or Delete Your Account</em>)
+        or <strong>Garmin Connect</strong>
+        (<em>Activities &rarr; All Activities &rarr; Export CSV</em>)
+        and drop the file above. Everything is parsed locally in your browser &mdash;
+        nothing is uploaded anywhere.
+      </p>
+      <p class="hint">
+        Only runs will be included. Distances and paces are shown in kilometres.
+      </p>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">Total runs</div>
+          <div class="card-value" id="statRuns">&mdash;</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Total distance</div>
+          <div class="card-value" id="statDistance">&mdash;</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Last 4&nbsp;wk avg pace</div>
+          <div class="card-value" id="statPace">&mdash;</div>
+        </div>
+        <div class="card highlight">
+          <div class="card-label">Estimated 2:45 readiness</div>
+          <div class="card-value" id="statReady">&mdash;</div>
+          <div class="card-sub" id="statReadySub"></div>
+        </div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Weekly mileage</h3>
+        <div class="chart-wrap"><canvas id="mileageChart"></canvas></div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Pace trend (min / km)</h3>
+        <p class="chart-note">
+          Each point is a run; the line is a 4-week rolling average. The dashed line is
+          your 2:45 target pace (3:54 / km).
+        </p>
+        <div class="chart-wrap"><canvas id="paceChart"></canvas></div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Long run progression</h3>
+        <p class="chart-note">Longest run of each week.</p>
+        <div class="chart-wrap"><canvas id="longRunChart"></canvas></div>
+      </div>
+
+      <div class="chart-block">
+        <h3>Recent runs</h3>
+        <div class="table-wrap">
+          <table id="recentTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th class="num">Distance</th>
+                <th class="num">Time</th>
+                <th class="num">Pace</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div id="errorBox" class="error" hidden></div>
+  </main>
+
+  <footer>
+    <p>Personal training tracker &middot; all data stays in your browser.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
