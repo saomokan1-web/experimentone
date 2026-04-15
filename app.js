@@ -18,8 +18,20 @@ const errorBox = $("#errorBox");
 // Chart handles so we can destroy them on re-upload
 let mileageChart, paceChart, longRunChart;
 
+// All parsed data — kept for re-rendering when the view range changes
+let _allRuns = [];
+let _allWeeks = [];
+
+// "3m" = last 3 months (default), "all" = full history
+let chartView = "3m";
+
+const btn3m = $("#btn3m");
+const btnAll = $("#btnAll");
+
 csvInput.addEventListener("change", handleFile);
 clearBtn.addEventListener("click", resetAll);
+btn3m.addEventListener("click", () => setChartView("3m"));
+btnAll.addEventListener("click", () => setChartView("all"));
 
 // ================================================================
 // CSV parsing
@@ -383,25 +395,67 @@ function render(runs) {
   emptyState.hidden = true;
   dashboard.hidden = false;
   clearBtn.hidden = false;
+  chartView = "3m";
+  btn3m.classList.add("active");
+  btnAll.classList.remove("active");
 
-  const weeks = aggregateWeeks(runs);
+  _allRuns = runs;
+  _allWeeks = aggregateWeeks(runs);
 
-  renderStats(runs, weeks);
-  renderMileageChart(weeks);
-  renderPaceChart(runs);
-  renderLongRunChart(weeks);
+  renderStats(runs);
+  renderCharts();
   renderRecentTable(runs);
   renderReadiness(runs);
 }
 
-function renderStats(runs, weeks) {
-  const totalDist = runs.reduce((s, r) => s + r.distanceKm, 0);
-  $("#statRuns").textContent = runs.length.toLocaleString();
-  $("#statDistance").textContent = `${totalDist.toFixed(0)} km`;
+function setChartView(range) {
+  if (range === chartView) return;
+  chartView = range;
+  btn3m.classList.toggle("active", range === "3m");
+  btnAll.classList.toggle("active", range === "all");
+  renderCharts();
+}
+
+// Returns the cutoff Date for the current view (or null = no filter)
+function viewCutoff() {
+  if (chartView === "all") return null;
+  const d = new Date();
+  d.setMonth(d.getMonth() - 3);
+  return d;
+}
+
+function renderCharts() {
+  const cutoff = viewCutoff();
+  const runs = cutoff ? _allRuns.filter((r) => r.date >= cutoff) : _allRuns;
+  const weeks = cutoff ? _allWeeks.filter((w) => w.weekStart >= cutoff) : _allWeeks;
+  renderMileageChart(weeks);
+  renderPaceChart(runs);
+  renderLongRunChart(weeks);
+}
+
+function renderStats(runs) {
+  const now = new Date();
+  const year = now.getFullYear();
+  const monthStart = new Date(year, now.getMonth(), 1);
+  const weekCutoff = weekStart(now); // Monday of current week
+
+  // Runs this year
+  const runsThisYear = runs.filter((r) => r.date.getFullYear() === year);
+  $("#statRuns").textContent = runsThisYear.length.toLocaleString();
+
+  // This week km
+  const weekRuns = runs.filter((r) => r.date >= weekCutoff);
+  const weekKm = weekRuns.reduce((s, r) => s + r.distanceKm, 0);
+  $("#statWeek").textContent = `${weekKm.toFixed(1)} km`;
+
+  // This month km
+  const monthRuns = runs.filter((r) => r.date >= monthStart);
+  const monthKm = monthRuns.reduce((s, r) => s + r.distanceKm, 0);
+  $("#statMonth").textContent = `${monthKm.toFixed(1)} km`;
 
   // Last 4 weeks average pace (weighted by distance)
-  const cutoff = Date.now() - 28 * 86400000;
-  const recent = runs.filter((r) => r.date.getTime() >= cutoff);
+  const paceCutoff = Date.now() - 28 * 86400000;
+  const recent = runs.filter((r) => r.date.getTime() >= paceCutoff);
   if (recent.length) {
     const num = recent.reduce((s, r) => s + r.paceMinPerKm * r.distanceKm, 0);
     const den = recent.reduce((s, r) => s + r.distanceKm, 0);
@@ -463,6 +517,7 @@ function renderMileageChart(weeks) {
 
 function renderPaceChart(runs) {
   if (paceChart) paceChart.destroy();
+  if (!runs.length) return;
   const ctx = document.getElementById("paceChart").getContext("2d");
 
   const scatter = runs.map((r) => ({ x: r.date, y: +r.paceMinPerKm.toFixed(3) }));
@@ -637,6 +692,11 @@ function resetAll() {
   if (mileageChart) { mileageChart.destroy(); mileageChart = null; }
   if (paceChart) { paceChart.destroy(); paceChart = null; }
   if (longRunChart) { longRunChart.destroy(); longRunChart = null; }
+  _allRuns = [];
+  _allWeeks = [];
+  chartView = "3m";
+  btn3m.classList.add("active");
+  btnAll.classList.remove("active");
   dashboard.hidden = true;
   emptyState.hidden = false;
   clearBtn.hidden = true;

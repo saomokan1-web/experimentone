@@ -40,12 +40,16 @@
     <section id="dashboard" hidden>
       <div class="cards">
         <div class="card">
-          <div class="card-label">Total runs</div>
+          <div class="card-label">Runs this year</div>
           <div class="card-value" id="statRuns">&mdash;</div>
         </div>
         <div class="card">
-          <div class="card-label">Total distance</div>
-          <div class="card-value" id="statDistance">&mdash;</div>
+          <div class="card-label">This week</div>
+          <div class="card-value" id="statWeek">&mdash;</div>
+        </div>
+        <div class="card">
+          <div class="card-label">This month</div>
+          <div class="card-value" id="statMonth">&mdash;</div>
         </div>
         <div class="card">
           <div class="card-label">Last 4&nbsp;wk avg pace</div>
@@ -55,6 +59,13 @@
           <div class="card-label">Estimated 2:45 readiness</div>
           <div class="card-value" id="statReady">&mdash;</div>
           <div class="card-sub" id="statReadySub"></div>
+        </div>
+      </div>
+
+      <div class="chart-controls" id="chartControls">
+        <div class="range-toggle">
+          <button class="range-btn active" id="btn3m" type="button">Last 3 months</button>
+          <button class="range-btn" id="btnAll" type="button">All time</button>
         </div>
       </div>
 

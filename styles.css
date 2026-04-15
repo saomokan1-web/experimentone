@@ -102,7 +102,7 @@ main {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 28px;
 }
@@ -135,6 +135,34 @@ main {
   color: var(--muted);
   margin-top: 4px;
 }
+
+.chart-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+.range-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel);
+}
+.range-btn {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.range-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.range-btn:hover:not(.active) { background: #f3f4f6; color: var(--text); }
 
 .chart-block {
   background: var(--panel);
@@ -192,6 +220,7 @@ footer {
 
 @media (max-width: 900px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
+  .chart-controls { justify-content: flex-start; }
   .topbar { padding: 16px 20px; flex-direction: column; gap: 12px; align-items: flex-start; }
   main { padding: 20px; }
 }
